@@ -1,7 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
-from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
@@ -30,28 +29,10 @@ def update_car(car_id: int, updated_car: Car):
             car.sucursal = updated_car.sucursal
             car.aspirante = updated_car.aspirante
             return car
-    return {"error": "Car not found"}
+    raise HTTPException(status_code=404, detail="Car not found")
 
 @app.delete("/cars/{car_id}")
 def delete_car(car_id: int):
     global cars
     cars = [car for car in cars if car.id != car_id]
     return {"message": "Car deleted"}
-
-@app.get("/", response_class=HTMLResponse)
-def read_root():
-    return """
-    <html>
-        <head>
-            <title>Car Dealership</title>
-            <link rel="icon" href="/favicon.ico" type="image/x-icon">
-        </head>
-        <body>
-            <h1>Welcome to the Car Dealership API</h1>
-        </body>
-    </html>
-    """
-
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return {"message": "No favicon found"}
